@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flag Quiz</title>
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Happy+Monkey&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+</head>
+<body id="app">
+  <%- include('./partials/_navbar') %>
+  <h2>Flag Quiz by Victory Ma</h2>
+  <main>
+    <form id="container" action="/submit" method="post">
+      <div class="horizontal-container">
+        <h3>
+          <div>
+            High Score:
+            <span id="high-score"> <%= locals.highScore %> </span>
+          </div>
+          <div>
+            Current Score:
+            <span id="score"> <%= locals.totalScore || 0 %> </span>
+            <% if (locals.totalScore >= 3)  { %>
+              🔥
+            <% } %>
+          </div>
+          <div id="hint">
+            Hint:
+            <span> <%= locals.question.hints || "No hint available" %> </span>
+          </div>
+        </h3>
+      </div>
+        <h1 id="countryFlag"> <%= locals.question.flag %> </h1>
+        <div class="answer-container">
+          <input type="text" name="answer" id="userInput" placeholder="What is this country?" autofocus
+            autocomplete="off">
+        </div>
+          <button type="submit" name="submit" value="submit">GUESS</button>
+          <button type="submit" name="submit" value="give-up" id="give-up">RESTART</button>
+    </form>
+      <div id="easy-mode">
+        Possible Answers:
+        <% for (let i=0; i < arrayOfCountries.length; i++) { %>
+          <h3>
+            <%= arrayOfCountries[i].name %>
+          </h3>
+          <% } %>
+      </div>
+  </main>
+      <h3 class="attribution">Background Image by Constantinos Kollias on Unsplash
+      </h3>
+      <script>
+        const wasCorrect = "<%= locals.wasCorrect %>";
+        if (wasCorrect === "false") {
+          alert('Game Over... Final Best Score: <%= locals.totalScore %>');
+          document.getElementById("app").innerHTML = '<a href="/" class="restart-button">Restart</a>'
+        }
+      </script>
+</body>
+</html>
