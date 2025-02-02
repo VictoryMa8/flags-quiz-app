@@ -6,17 +6,24 @@ import bodyParser from "body-parser";
 import pg from "pg";
 
 const app = express();
-const port = process.env.CLOUD || 3000;
+const port = process.env.PORT || 3000;
 
 const db = new pg.Client({
   user: process.env.DBUSER,
-  host: process.env.HOST,
-  database: process.env.DBNAME,
   password: process.env.POSTGRES,
-  port: process.env.DBPORT,
+  database: process.env.DBNAME,
+  host: `/cloudsql/flags-quiz-449702:us-central1:flags-quiz-database`,
 });
 
-db.connect();
+console.log("Database connection details:", {
+  user: process.env.DBUSER,
+  database: process.env.DBNAME,
+  host: process.env.DB_HOST,
+});
+
+db.connect()
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch(err => console.error("Connection error", err));
 
 let totalCorrect = 0;
 let highScore = 0;
@@ -31,7 +38,6 @@ async function fetchQuizData() {
   } catch (err) {
     console.error("Error executing query", err.stack);
   }
-  db.end()
 }
 
 function shuffle(array) {
@@ -109,9 +115,15 @@ app.post("/submit", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-  fetchQuizData().then(() => {
-    console.log("Quiz data loaded successfully");
-  });
-});
+async function startServer() {
+  try {
+    await fetchQuizData();
+    app.listen(port, () => {
+      console.log(`Server is running at http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error("Failed to start server:", err);
+  }
+}
+
+startServer();
